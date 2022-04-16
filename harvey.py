@@ -67,7 +67,6 @@ class Harvey:
                     self.hero.moving_down = False
 
                 if self.pad.get_button(2):
-                    print("jump")
                     self.hero.jumping = True
 
             elif event.type == pygame.KEYDOWN:
