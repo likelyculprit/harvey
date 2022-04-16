@@ -12,6 +12,7 @@ class Harvey:
         '''Init the game and create resources.'''
         pygame.init()
         self.settings = Settings()
+        self.running = True
         self.pad = 0
         if pygame.joystick.get_count():
             self.pad = pygame.joystick.Joystick(0)
@@ -25,7 +26,7 @@ class Harvey:
 
     def run_game(self):
         '''Start the main loop for the game.'''
-        while True:
+        while self.running:
             self._check_events()
             self.hero.update()
             self._update_screen()
