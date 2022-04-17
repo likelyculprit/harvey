@@ -31,22 +31,7 @@ class Harvey:
         while self.running:
             self._check_events()
             self.hero.update()
-            self.bullets.update()
-
-            # Delete bullets that have left the screen.
-            for bullet in self.bullets.copy():
-                if bullet.goes_up:
-                    if bullet.rect.bottom < 0:
-                        self.bullets.remove(bullet)
-                elif bullet.goes_down:
-                    if bullet.rect.top > self.settings.screen_height:
-                        self.bullets.remove(bullet)
-                elif bullet.goes_right:
-                    if bullet.rect.left > self.settings.screen_width:
-                        self.bullets.remove(bullet)
-                elif bullet.goes_left:
-                    if bullet.rect.right < 0:
-                        self.bullets.remove(bullet)
+            self._update_bullets()
             self._update_screen()
 
     def _check_events(self):
@@ -115,8 +100,28 @@ class Harvey:
 
     def _fire_bullet(self):
         '''Create a new bullet and add it to the bullets group.'''
-        new_bullet = Bullet(self)
-        self.bullets.add(new_bullet)
+        if len(self.bullets) < self.settings.bullets_allowed:
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
+
+    def _update_bullets(self):
+        '''Update position of bullets and delete old bullets.'''
+        self.bullets.update()
+
+        # Delete bullets that have left the screen.
+        for bullet in self.bullets.copy():
+            if bullet.goes_up:
+                if bullet.rect.bottom < 0:
+                    self.bullets.remove(bullet)
+            elif bullet.goes_down:
+                if bullet.rect.top > self.settings.screen_height:
+                    self.bullets.remove(bullet)
+            elif bullet.goes_right:
+                if bullet.rect.left > self.settings.screen_width:
+                    self.bullets.remove(bullet)
+            elif bullet.goes_left:
+                if bullet.rect.right < 0:
+                    self.bullets.remove(bullet)
 
     def _update_screen(self):
         '''Update images on screen and flip to new screen.'''
