@@ -3,6 +3,7 @@ import pygame
 
 from settings import Settings
 from hero import Hero
+from bullet import Bullet
 
 
 class Harvey:
@@ -23,12 +24,14 @@ class Harvey:
         self.rect = self.screen.get_rect()
         pygame.display.set_caption("Harvey")
         self.hero = Hero(self)
+        self.bullets = pygame.sprite.Group()
 
     def run_game(self):
         '''Start the main loop for the game.'''
         while self.running:
             self._check_events()
             self.hero.update()
+            self._update_bullets()
             self._update_screen()
 
     def _check_events(self):
@@ -54,21 +57,12 @@ class Harvey:
                     self.hero.moving_left = False
                     self.hero.moving_right = False
 
-                # Left stick or d-pad vertical axis.
-                if (self.pad.get_axis(1) < -0.07 or
-                        self.pad.get_hat(0)[1] == 1):
-                    self.hero.moving_up = True
-                    self.hero.moving_down = False
-                elif (self.pad.get_axis(1) > 0.07 or
-                        self.pad.get_hat(0)[1] == -1):
-                    self.hero.moving_down = True
-                    self.hero.moving_up = False
-                elif -0.07 <= self.pad.get_axis(1) <= 0.07:
-                    self.hero.moving_up = False
-                    self.hero.moving_down = False
-
                 if self.pad.get_button(2):
                     self.hero.jumping = True
+
+                if self.pad.get_button(0) or self.pad.get_axis(5) > 0:
+                    if not self.hero.jumping:
+                        self._fire_bullet()
 
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)
@@ -81,14 +75,14 @@ class Harvey:
             self.hero.moving_right = True
         elif event.key == pygame.K_LEFT:
             self.hero.moving_left = True
-        elif event.key == pygame.K_DOWN:
-            self.hero.moving_down = True
-        elif event.key == pygame.K_UP:
-            self.hero.moving_up = True
 
         elif event.key == pygame.K_b:
             if self.hero.jumping == False:
                 self.hero.jumping = True
+
+        elif event.key == pygame.K_SPACE:
+            if not self.hero.jumping:
+                self._fire_bullet()
 
         elif event.key == pygame.K_q:
             sys.exit()
@@ -104,10 +98,37 @@ class Harvey:
         elif event.key == pygame.K_UP:
             self.hero.moving_up = False
 
+    def _fire_bullet(self):
+        '''Create a new bullet and add it to the bullets group.'''
+        if len(self.bullets) < self.settings.bullets_allowed:
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
+
+    def _update_bullets(self):
+        '''Update position of bullets and delete old bullets.'''
+        self.bullets.update()
+
+        # Delete bullets that have left the screen.
+        for bullet in self.bullets.copy():
+            if bullet.goes_up:
+                if bullet.rect.bottom < 0:
+                    self.bullets.remove(bullet)
+            elif bullet.goes_down:
+                if bullet.rect.top > self.settings.screen_height:
+                    self.bullets.remove(bullet)
+            elif bullet.goes_right:
+                if bullet.rect.left > self.settings.screen_width:
+                    self.bullets.remove(bullet)
+            elif bullet.goes_left:
+                if bullet.rect.right < 0:
+                    self.bullets.remove(bullet)
+
     def _update_screen(self):
         '''Update images on screen and flip to new screen.'''
         self.screen.fill(self.settings.bg_color)
         self.hero.blitme()
+        for bullet in self.bullets.sprites():
+            bullet.blitme()
         pygame.display.flip()
 
 

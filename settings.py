@@ -1,12 +1,16 @@
 class Settings:
     '''A class to store all game settings.'''
 
-    def __init__(self):
-        '''Init game settings.'''
-        # Screen settings.
-        self.screen_width = 800
-        self.screen_height = 800
-        self.bg_color = (20, 10, 70)
+    # Screen settings.
+    screen_width = 800
+    screen_height = 800
+    bg_color = (20, 10, 70)
 
-        # Ship settings.
-        self.ship_speed = 0.4
+    # Ship settings.
+    ship_speed = 0.4
+
+    # Bullet settings.
+    bullet_speed = 0.5
+    bullet_width = 8
+    bullet_height = 8
+    bullets_allowed = 3
