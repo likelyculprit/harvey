@@ -1,9 +1,11 @@
 import sys
 import pygame
+from random import randint
 
 from settings import Settings
 from hero import Hero
 from bullet import Bullet
+from alien import Alien
 
 
 class Harvey:
@@ -12,6 +14,7 @@ class Harvey:
     def __init__(self):
         '''Init the game and create resources.'''
         pygame.init()
+        self.clock = pygame.time.Clock()
         self.settings = Settings()
         self.running = True
         self.pad = 0
@@ -25,13 +28,18 @@ class Harvey:
         pygame.display.set_caption("Harvey")
         self.hero = Hero(self)
         self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
+
+        self._add_alien()
 
     def run_game(self):
         '''Start the main loop for the game.'''
         while self.running:
+            self.clock.tick(60)
             self._check_events()
             self.hero.update()
             self._update_bullets()
+            self._generate_alien()
             self._update_screen()
 
     def _check_events(self):
@@ -98,6 +106,17 @@ class Harvey:
         elif event.key == pygame.K_UP:
             self.hero.moving_up = False
 
+    def _add_alien(self):
+        '''Add aliens to the screen.'''
+        alien = Alien(self)
+        self.aliens.add(alien)
+
+    def _generate_alien(self):
+        '''Determine if a new alien should appear.'''
+        alien_rand_gen = randint(0, 1000)
+        if alien_rand_gen < self.settings.alien_chance:
+            self._add_alien()
+
     def _fire_bullet(self):
         '''Create a new bullet and add it to the bullets group.'''
         if len(self.bullets) < self.settings.bullets_allowed:
@@ -129,6 +148,7 @@ class Harvey:
         self.hero.blitme()
         for bullet in self.bullets.sprites():
             bullet.blitme()
+        self.aliens.draw(self.screen)
         pygame.display.flip()
 
 

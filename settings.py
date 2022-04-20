@@ -7,10 +7,14 @@ class Settings:
     bg_color = (20, 10, 70)
 
     # Ship settings.
-    ship_speed = 0.4
+    ship_speed = 5
 
     # Bullet settings.
     bullet_speed = 0.5
     bullet_width = 8
     bullet_height = 8
     bullets_allowed = 3
+
+    # Alien settings.
+    # chance out of 1000 that an alien will appear each tick.
+    alien_chance = 4
