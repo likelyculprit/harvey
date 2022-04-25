@@ -10,7 +10,7 @@ class Settings:
     ship_speed = 5
 
     # Bullet settings.
-    bullet_speed = 0.5
+    bullet_speed = 6
     bullet_width = 8
     bullet_height = 8
     bullets_allowed = 3

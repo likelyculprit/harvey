@@ -14,7 +14,7 @@ class Bullet(Sprite):
         self.hero = harvey.hero
 
         # Create a bullet at (0, 0) then set correct position.
-        self.image = pygame.image.load('assets/bullet1.bmp')
+        self.image = pygame.image.load('assets/bullet1.png')
         self.rect = self.image.get_rect()
 
         self.goes_up = False

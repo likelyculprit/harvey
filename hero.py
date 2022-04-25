@@ -11,7 +11,7 @@ class Hero:
         self.screen_rect = harvey.screen.get_rect()
 
         # Load the ship image and get its rect.
-        self.orig_image = pygame.image.load('assets/hero.bmp')
+        self.orig_image = pygame.image.load('assets/hero.png')
         self.image = self.orig_image
         self.rect = self.image.get_rect()
 

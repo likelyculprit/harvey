@@ -35,7 +35,6 @@ class Harvey:
     def run_game(self):
         '''Start the main loop for the game.'''
         while self.running:
-            self.clock.tick(60)
             self._check_events()
             self.hero.update()
             self._update_bullets()
@@ -108,7 +107,7 @@ class Harvey:
 
     def _add_alien(self):
         '''Add aliens to the screen.'''
-        alien = Alien(self)
+        alien = Alien(self, (1, 0))
         self.aliens.add(alien)
 
     def _generate_alien(self):
@@ -148,8 +147,12 @@ class Harvey:
         self.hero.blitme()
         for bullet in self.bullets.sprites():
             bullet.blitme()
+        # for alien in self.aliens.sprites():
+        #     alien.blitme()
+        self.aliens.update()
         self.aliens.draw(self.screen)
         pygame.display.flip()
+        self.clock.tick(60)
 
 
 if __name__ == '__main__':
