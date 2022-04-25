@@ -107,7 +107,7 @@ class Harvey:
 
     def _add_alien(self):
         '''Add aliens to the screen.'''
-        alien = Alien(self, (1, 0))
+        alien = Alien(self, (2, -1))
         self.aliens.add(alien)
 
     def _generate_alien(self):
@@ -150,7 +150,7 @@ class Harvey:
         # for alien in self.aliens.sprites():
         #     alien.blitme()
         self.aliens.update()
-        self.aliens.draw(self.screen)
+        # self.aliens.draw(self.screen)
         pygame.display.flip()
         self.clock.tick(60)
 
