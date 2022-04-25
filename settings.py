@@ -18,3 +18,18 @@ class Settings:
     # Alien settings.
     # chance out of 1000 that an alien will appear each tick.
     alien_chance = 4
+
+
+###################### TODO ################################
+# borders
+# bullets kill aliens
+# aliens bounce off walls
+# generate specks
+# aliens eat specks
+# aliens stun hero
+# levels
+# obstacles
+# stars background new each level
+# abilities new each level
+# temp pickups
+# different aliens
