@@ -24,6 +24,8 @@ class Hero:
         # Store a decimal value for the ship's horizontal position.
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
+        self.position = (self.x, self.y)
+        self.radius = self.image.get_width() / 2
 
         # Movement and position flags.
         self.on_bottom = True
@@ -35,6 +37,11 @@ class Hero:
         self.moving_left = False
 
         self.jumping = False
+        self.stunned = False
+
+        self.clock = pygame.time.Clock()
+        self.timer = 3000
+        self.dt = 0  # Delta time since last tick.
 
     def go_left(self):
         if self.on_bottom and self.rect.left > self.screen_rect.left:
@@ -68,10 +75,27 @@ class Hero:
     def jump_right(self):
         self.x += self.settings.ship_speed
 
+    def stun(self):
+        while self.timer >= 0:
+            self.stunned = True
+            self.dt = self.clock.tick(60)
+            self.timer -= self.dt
+           # print(self.timer)
+        self.timer = 3000
+        self.stunned = False
+
+        # self.stunned = True
+        # self.dt = self.clock.tick(60)
+        # self.timer -= self.dt
+        # print(self.timer)
+        # if self.timer <= 0:
+        #     self.stunned = False
+        #     self.timer = 3000  # Milliseconds
+
     def update(self):
         '''Update ship position based on movement flag.'''
         pygame.draw.line(self.screen, (255, 255, 255), (60, 80), (130, 100))
-        if self.jumping:
+        if self.jumping and not self.stunned:
 
             # Jump from bottom.
             if self.on_bottom and (
@@ -194,9 +218,9 @@ class Hero:
                     self.jumping = False
 
         # Surface movement.
-        if self.moving_right and not self.jumping:
+        if self.moving_right and not self.jumping and not self.stunned:
             self.go_right()
-        if self.moving_left and not self.jumping:
+        if self.moving_left and not self.jumping and not self.stunned:
             self.go_left()
 
         # Update rect object from self.x
@@ -205,7 +229,7 @@ class Hero:
 
     def blitme(self):
         '''Draw the ship at its current location.'''
-        if self.jumping:
+        if self.jumping and not self.stunned:
             pygame.draw.line(
                 self.screen,
                 (255, 255, 255),

@@ -11,7 +11,9 @@ class Alien(Sprite):
         '''Init alien and set starting position.'''
         super().__init__()
         self.screen = harvey.screen
+        self.settings = harvey.settings
         self.velocity = Vector2(velocity)
+        self.hero = harvey.hero
 
         # Load alien image and set its rect.
         self.image = pygame.image.load('assets/alien1.png')
@@ -26,16 +28,34 @@ class Alien(Sprite):
     def update(self):
         '''Move each alien on the screen.'''
         self.position = self.position + self.velocity
+        self.check_edges()
+        # if self.collides_with(self.hero):
+        #     print("stun")
         self.blit_position = self.position - Vector2(self.radius)
+        self.rect.x = int(self.blit_position.x)
+        self.rect.y = int(self.blit_position.y)
         self.screen.blit(self.image, self.blit_position)
 
-    # def blitme(self):
-    #     '''Draw alien at its current location.'''
-    #     print(self.position, self.radius, self.blit_position)
-    #     self.blit_position = self.position - Vector2(self.radius)
-    #     self.screen.blit(self.image, self.blit_position)
+    def blitme(self):
+        '''Draw alien at its current location.'''
+        self.blit_position = self.position - Vector2(self.radius)
+        self.screen.blit(self.image, self.blit_position)
 
     def collides_with(self, other_obj):
         '''Determine if alien contacts anything.'''
         self.distance = self.position.distance_to(other_obj.position)
         return self.distance < self.radius + other_obj.radius
+
+    def check_edges(self):
+        '''Determine if alien hits screen edges.'''
+        # Top or bottom edges.
+        if ((self.position.y - self.radius) <= 0 or
+                (self.position.y + self.radius) >=
+                self.settings.screen_height):
+            self.velocity.y *= -1
+
+        # Side edges.
+        if ((self.position.x - self.radius) <= 0 or
+                (self.position.x + self.radius) >=
+                self.settings.screen_width):
+            self.velocity.x *= -1

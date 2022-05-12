@@ -1,3 +1,6 @@
+from random import randint
+
+
 class Settings:
     '''A class to store all game settings.'''
 
@@ -19,15 +22,16 @@ class Settings:
     # chance out of 1000 that an alien will appear each tick.
     alien_chance = 4
 
+    def get_rand_velo(self):
+        return (randint(-1, 1), randint(-1, 1))
+
 
 ###################### TODO ################################
-# borders
-# bullets kill aliens
-# aliens bounce off walls
 # generate specks
 # aliens eat specks
 # aliens stun hero
 # levels
+# borders
 # obstacles
 # stars background new each level
 # abilities new each level

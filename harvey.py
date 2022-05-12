@@ -30,15 +30,13 @@ class Harvey:
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
 
-        self._add_alien()
-
     def run_game(self):
         '''Start the main loop for the game.'''
         while self.running:
             self._check_events()
             self.hero.update()
             self._update_bullets()
-            self._generate_alien()
+            self._update_aliens()
             self._update_screen()
 
     def _check_events(self):
@@ -107,7 +105,8 @@ class Harvey:
 
     def _add_alien(self):
         '''Add aliens to the screen.'''
-        alien = Alien(self, (2, -1))
+        # Randomized velocity vector.
+        alien = Alien(self, self.settings.get_rand_velo())
         self.aliens.add(alien)
 
     def _generate_alien(self):
@@ -115,6 +114,21 @@ class Harvey:
         alien_rand_gen = randint(0, 1000)
         if alien_rand_gen < self.settings.alien_chance:
             self._add_alien()
+
+    def _update_aliens(self):
+        '''Update position of aliens.'''
+        self._generate_alien()
+        self.aliens.update()
+
+        # Check for alien-hero collisions.
+        alien_coll = pygame.sprite.spritecollideany(self.hero, self.aliens)
+        if alien_coll:
+            print("stunned")
+            self.hero.stun()
+            if self.hero.on_top or self.hero.on_bottom:
+                alien_coll.velocity.y *= -1
+            if self.hero.on_left or self.hero.on_right:
+                alien_coll.velocity.x *= -1
 
     def _fire_bullet(self):
         '''Create a new bullet and add it to the bullets group.'''
@@ -128,18 +142,15 @@ class Harvey:
 
         # Delete bullets that have left the screen.
         for bullet in self.bullets.copy():
-            if bullet.goes_up:
-                if bullet.rect.bottom < 0:
-                    self.bullets.remove(bullet)
-            elif bullet.goes_down:
-                if bullet.rect.top > self.settings.screen_height:
-                    self.bullets.remove(bullet)
-            elif bullet.goes_right:
-                if bullet.rect.left > self.settings.screen_width:
-                    self.bullets.remove(bullet)
-            elif bullet.goes_left:
-                if bullet.rect.right < 0:
-                    self.bullets.remove(bullet)
+            if (bullet.rect.bottom < 0 or
+                    bullet.rect.top > self.settings.screen_height or
+                    bullet.rect.left > self.settings.screen_width or
+                    bullet.rect.right < 0):
+                self.bullets.remove(bullet)
+
+        # Check for bullet-alien collisions and remove both on contact.
+        self.collisions = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True)
 
     def _update_screen(self):
         '''Update images on screen and flip to new screen.'''
@@ -147,10 +158,8 @@ class Harvey:
         self.hero.blitme()
         for bullet in self.bullets.sprites():
             bullet.blitme()
-        # for alien in self.aliens.sprites():
-        #     alien.blitme()
-        self.aliens.update()
-        # self.aliens.draw(self.screen)
+        for alien in self.aliens.sprites():
+            alien.blitme()
         pygame.display.flip()
         self.clock.tick(60)
 
