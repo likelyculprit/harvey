@@ -29,7 +29,6 @@ class Settings:
 ###################### TODO ################################
 # generate specks
 # aliens eat specks
-# aliens stun hero
 # levels
 # borders
 # obstacles

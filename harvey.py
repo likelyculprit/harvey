@@ -121,18 +121,21 @@ class Harvey:
         self.aliens.update()
 
         # Check for alien-hero collisions.
-        alien_coll = pygame.sprite.spritecollideany(self.hero, self.aliens)
+        alien_coll = pygame.sprite.spritecollide(self.hero, self.aliens, True)
         if alien_coll:
-            print("stunned")
-            self.hero.stun()
-            if self.hero.on_top or self.hero.on_bottom:
-                alien_coll.velocity.y *= -1
-            if self.hero.on_left or self.hero.on_right:
-                alien_coll.velocity.x *= -1
+            self.hero.stunned = True
+            self.hero.timer = 3000
+            # if self.hero.on_top or self.hero.on_bottom:
+            #     alien_coll.velocity.y *= -1
+            # if self.hero.on_left or self.hero.on_right:
+            #     alien_coll.velocity.x *= -1
+
+        self.hero.check_stun(self.clock.get_time())
 
     def _fire_bullet(self):
         '''Create a new bullet and add it to the bullets group.'''
-        if len(self.bullets) < self.settings.bullets_allowed:
+        if (len(self.bullets) < self.settings.bullets_allowed and
+                not self.hero.stunned):
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
 
