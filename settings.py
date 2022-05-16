@@ -29,13 +29,14 @@ class Settings:
 
 
 ###################### TODO ################################
+# levels
+# stars background new each level
 # generate specks
 # aliens eat specks
 # animate aliens
-# levels
 # borders
 # obstacles
-# stars background new each level
+
 # abilities new each level
 # temp pickups
 # different aliens
