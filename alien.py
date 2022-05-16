@@ -25,12 +25,13 @@ class Alien(Sprite):
         self.rect.y = randint(80, 700)
         self.position = Vector2(float(self.rect.x), float(self.rect.y))
 
+        # Set starting HP.
+        self.hp = self.settings.alien_hp
+
     def update(self):
         '''Move each alien on the screen.'''
         self.position = self.position + self.velocity
         self.check_edges()
-        # if self.collides_with(self.hero):
-        #     print("stun")
         self.blit_position = self.position - Vector2(self.radius)
         self.rect.x = int(self.blit_position.x)
         self.rect.y = int(self.blit_position.y)

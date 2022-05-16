@@ -16,11 +16,13 @@ class Settings:
     bullet_speed = 6
     bullet_width = 8
     bullet_height = 8
+    bullet_damage = 1
     bullets_allowed = 3
 
     # Alien settings.
     # chance out of 1000 that an alien will appear each tick.
     alien_chance = 4
+    alien_hp = 1
 
     def get_rand_velo(self):
         return (randint(-1, 1), randint(-1, 1))
@@ -29,6 +31,7 @@ class Settings:
 ###################### TODO ################################
 # generate specks
 # aliens eat specks
+# animate aliens
 # levels
 # borders
 # obstacles

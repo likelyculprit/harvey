@@ -40,7 +40,7 @@ class Hero:
         self.stunned = False
 
         self.clock = pygame.time.Clock()
-        self.timer = 30000
+        self.timer = 3000
         self.dt = 0  # Delta time since last tick.
 
     def go_left(self):
@@ -79,15 +79,6 @@ class Hero:
         self.timer -= game_clock
         if self.timer <= 0:
             self.stunned = False
-        print(self.timer)
-
-        # self.stunned = True
-        # self.dt = self.clock.tick(60)
-        # self.timer -= self.dt
-        # print(self.timer)
-        # if self.timer <= 0:
-        #     self.stunned = False
-        #     self.timer = 3000  # Milliseconds
 
     def update(self):
         '''Update ship position based on movement flag.'''
