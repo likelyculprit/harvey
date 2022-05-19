@@ -21,6 +21,9 @@ class Speck(Sprite):
         self.rect.x = randint(80, 700)
         self.rect.y = randint(80, 700)
 
+    def update(self):
+        ''''''
+
     def blitme(self):
         '''Draw alien at its current location.'''
         self.screen.blit(self.image, (self.rect.x, self.rect.y))
