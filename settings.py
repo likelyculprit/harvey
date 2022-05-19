@@ -19,6 +19,9 @@ class Settings:
     bullet_damage = 1
     bullets_allowed = 3
 
+    # Speck settings.
+    speck_chance = 6
+
     # Alien settings.
     # chance out of 1000 that an alien will appear each tick.
     alien_chance = 4

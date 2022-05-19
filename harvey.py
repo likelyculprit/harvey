@@ -5,6 +5,7 @@ from random import randint
 from settings import Settings
 from hero import Hero
 from bullet import Bullet
+from speck import Speck
 from alien import Alien
 
 
@@ -28,6 +29,7 @@ class Harvey:
         pygame.display.set_caption("Harvey")
         self.hero = Hero(self)
         self.bullets = pygame.sprite.Group()
+        self.specks = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
 
     def run_game(self):
@@ -37,6 +39,7 @@ class Harvey:
             self.hero.update()
             self._update_bullets()
             self._update_aliens()
+            self._add_speck()
             self._update_screen()
 
     def _check_events(self):
@@ -103,6 +106,13 @@ class Harvey:
         elif event.key == pygame.K_UP:
             self.hero.moving_up = False
 
+    def _add_speck(self):
+        '''Add specks to the screen.'''
+        speck_rand_gen = randint(0, 1000)
+        if speck_rand_gen < self.settings.speck_chance:
+            speck = Speck(self)
+            self.specks.add(speck)
+
     def _add_alien(self):
         '''Add aliens to the screen.'''
         # Randomized velocity vector.
@@ -126,6 +136,10 @@ class Harvey:
             self.hero.stunned = True
             self.hero.timer = 3000
         self.hero.check_stun(self.clock.get_time())
+
+        # Check for alien-speck collisions.
+        eats = pygame.sprite.groupcollide(
+            self.specks, self.aliens, True, False)
 
     def _fire_bullet(self):
         '''Create a new bullet and add it to the bullets group.'''
