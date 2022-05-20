@@ -110,8 +110,14 @@ class Harvey:
         '''Add specks to the screen.'''
         speck_rand_gen = randint(0, 1000)
         if speck_rand_gen < self.settings.speck_chance:
+            print(speck_rand_gen)
             speck = Speck(self)
             self.specks.add(speck)
+
+    def _update_specks(self):
+        '''Update status of specks.'''
+        self._add_speck()
+        self.specks.update()
 
     def _add_alien(self):
         '''Add aliens to the screen.'''
@@ -185,6 +191,8 @@ class Harvey:
             bullet.blitme()
         for alien in self.aliens.sprites():
             alien.blitme()
+        for speck in self.specks.sprites():
+            speck.blitme()
         pygame.display.flip()
         self.clock.tick(60)
 

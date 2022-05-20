@@ -20,10 +20,8 @@ class Speck(Sprite):
         # Set random starting position.
         self.rect.x = randint(80, 700)
         self.rect.y = randint(80, 700)
-
-    def update(self):
-        ''''''
+        self.position = (self.rect.x, self.rect.y)
 
     def blitme(self):
-        '''Draw alien at its current location.'''
-        self.screen.blit(self.image, (self.rect.x, self.rect.y))
+        '''Draw speck at its current location.'''
+        self.screen.blit(self.image, self.position)
