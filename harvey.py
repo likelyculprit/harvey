@@ -1,12 +1,14 @@
 import sys
 import pygame
 from random import randint
+from time import sleep
 
 from settings import Settings
 from hero import Hero
 from bullet import Bullet
 from speck import Speck
 from alien import Alien
+from stats import Stats
 
 
 class Harvey:
@@ -17,16 +19,15 @@ class Harvey:
         pygame.init()
         self.clock = pygame.time.Clock()
         self.settings = Settings()
-        self.running = True
         self.pad = 0
         if pygame.joystick.get_count():
             self.pad = pygame.joystick.Joystick(0)
-        if self.pad:
             self.pad.init()
         self.screen = pygame.display.set_mode(
             (self.settings.screen_width, self.settings.screen_height))
         self.rect = self.screen.get_rect()
         pygame.display.set_caption("Harvey")
+        self.stats = Stats(self)
         self.hero = Hero(self)
         self.bullets = pygame.sprite.Group()
         self.specks = pygame.sprite.Group()
@@ -34,13 +35,23 @@ class Harvey:
 
     def run_game(self):
         '''Start the main loop for the game.'''
-        while self.running:
+        while 1:
             self._check_events()
-            self.hero.update()
-            self._update_bullets()
-            self._update_aliens()
-            self._add_speck()
+
+            if self.stats.game_active:
+                self.hero.update()
+                self._update_bullets()
+                self._update_aliens()
+                self._update_specks()
+
             self._update_screen()
+
+    def start_level(self):
+        '''Prepare a new level.'''
+        self.aliens.empty()
+        self.bullets.empty()
+        self.specks.empty()
+        self.hero.start_position()
 
     def _check_events(self):
         '''Respond to keypresses and mouse events.'''
@@ -109,32 +120,37 @@ class Harvey:
     def _add_speck(self):
         '''Add specks to the screen.'''
         speck_rand_gen = randint(0, 1000)
-        if speck_rand_gen < self.settings.speck_chance:
-            print(speck_rand_gen)
+        if (speck_rand_gen < self.settings.speck_chance and
+                self.settings.specks_left > 0):
             speck = Speck(self)
             self.specks.add(speck)
+            self.settings.specks_left -= 1
+            print("Remaining specks:", self.settings.specks_left)
 
     def _update_specks(self):
         '''Update status of specks.'''
         self._add_speck()
         self.specks.update()
+        if self.settings.specks_left <= 0 and not self.specks:
+            print("Aliens have taken all energy. We're doomed")
 
     def _add_alien(self):
         '''Add aliens to the screen.'''
-        # Randomized velocity vector.
-        alien = Alien(self, self.settings.get_rand_velo())
-        self.aliens.add(alien)
-
-    def _generate_alien(self):
-        '''Determine if a new alien should appear.'''
         alien_rand_gen = randint(0, 1000)
-        if alien_rand_gen < self.settings.alien_chance:
-            self._add_alien()
+        if (alien_rand_gen < self.settings.alien_chance and
+                self.settings.aliens_left > 0):
+            # Randomized velocity vector.
+            alien = Alien(self, self.settings.get_rand_velo())
+            self.aliens.add(alien)
+            self.settings.aliens_left -= 1
+            print("Aliens remaining:", self.settings.aliens_left)
 
     def _update_aliens(self):
         '''Update position of aliens.'''
-        self._generate_alien()
+        self._add_alien()
         self.aliens.update()
+        if self.settings.aliens_left <= 0 and not self.aliens:
+            print("You have eliminated the threat")
 
         # Check for alien-hero collisions.
         alien_coll = pygame.sprite.spritecollide(self.hero, self.aliens, True)
@@ -179,6 +195,7 @@ class Harvey:
             self._damage(alien[0], self.settings.bullet_damage)
 
     def _damage(self, alien, damage):
+        '''Deal damage to a hit alien.'''
         alien.hp -= damage
         if alien.hp <= 0:
             self.aliens.remove(alien)

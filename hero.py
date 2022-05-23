@@ -43,7 +43,12 @@ class Hero:
         self.timer = 3000
         self.dt = 0  # Delta time since last tick.
 
+    def start_position(self):
+        '''Reset player to starting position.'''
+        self.rect.midbottom = self.screen_rect.midbottom
+
     def go_left(self):
+        '''Go left.'''
         if self.on_bottom and self.rect.left > self.screen_rect.left:
             self.x -= self.settings.ship_speed
         elif self.on_top and self.rect.right < self.screen_rect.right:
@@ -54,6 +59,7 @@ class Hero:
             self.y += self.settings.ship_speed
 
     def go_right(self):
+        '''Go right.'''
         if self.on_bottom and self.rect.right < self.screen_rect.right:
             self.x += self.settings.ship_speed
         elif self.on_top and self.rect.left > self.screen_rect.left:
@@ -64,18 +70,23 @@ class Hero:
             self.y -= self.settings.ship_speed
 
     def jump_up(self):
+        '''Jump up.'''
         self.y -= self.settings.ship_speed
 
     def jump_down(self):
+        '''Jump down.'''
         self.y += self.settings.ship_speed
 
     def jump_left(self):
+        '''Jump left.'''
         self.x -= self.settings.ship_speed
 
     def jump_right(self):
+        '''Jump right.'''
         self.x += self.settings.ship_speed
 
     def check_stun(self, game_clock):
+        '''Leave player stunned until end of stun effect.'''
         self.timer -= game_clock
         if self.timer <= 0:
             self.stunned = False
@@ -217,7 +228,7 @@ class Hero:
 
     def blitme(self):
         '''Draw the ship at its current location.'''
-        if self.jumping and not self.stunned:
+        if self.jumping:
             pygame.draw.line(
                 self.screen,
                 (255, 255, 255),

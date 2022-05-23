@@ -21,25 +21,28 @@ class Settings:
 
     # Speck settings.
     speck_chance = 3
+    specks_left = randint(15, 25)
 
     # Alien settings.
     # chance out of 1000 that an alien will appear each tick.
-    alien_chance = 4
+    alien_chance = 5
+    aliens_left = randint(40, 50)
     alien_hp = 1
 
     def get_rand_velo(self):
+        '''Randomaize velocity.'''
         return (randint(-1, 1), randint(-1, 1))
 
 
 ###################### TODO ################################
-# levels
-# stars background new each level
-# generate specks
-# aliens eat specks
-# animate aliens
-# borders
-# obstacles
+# bug number of bullets
 
+# levels
+# obstacles
+# stars background new each level
+# animate aliens
+# animate hero - propulsion, shootshake
+# borders
 # abilities new each level
 # temp pickups
 # different aliens
