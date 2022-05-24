@@ -4,6 +4,7 @@ from random import randint
 from time import sleep
 
 from settings import Settings
+from button import Button
 from hero import Hero
 from bullet import Bullet
 from speck import Speck
@@ -32,15 +33,17 @@ class Harvey:
         self.bullets = pygame.sprite.Group()
         self.specks = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
+        self.buttons = pygame.sprite.Group()
+        self.play_button = Button(self, 'assets/play_button.png')
+        self.buttons.add(self.play_button)
 
     def run_game(self):
         '''Start the main loop for the game.'''
         while 1:
             self._check_events()
-
+            self.hero.update()
+            self._update_bullets()
             if self.stats.game_active:
-                self.hero.update()
-                self._update_bullets()
                 self._update_aliens()
                 self._update_specks()
 
@@ -174,10 +177,6 @@ class Harvey:
         '''Update position of bullets and delete old bullets.'''
         self.bullets.update()
 
-        # for alien in self.aliens.copy():
-        #     hit_bullet = pygame.sprite.spritecollide(
-        #         alien, self.bullets, True)
-
         # Delete bullets that have left the screen.
         for bullet in self.bullets.copy():
             if (bullet.rect.bottom < 0 or
@@ -185,14 +184,17 @@ class Harvey:
                     bullet.rect.left > self.settings.screen_width or
                     bullet.rect.right < 0):
                 self.bullets.remove(bullet)
-            # for hit_alien in pygame.sprite.spritecollide(
-            #         bullet, self.aliens, False):
-            #     self._damage(hit_alien, self.settings.bullet_damage)
+
         # Check for bullet-alien collisions and remove both on contact.
         hits = pygame.sprite.groupcollide(
             self.bullets, self.aliens, True, False)
         for alien in hits.values():
             self._damage(alien[0], self.settings.bullet_damage)
+
+        # Check for shootiing a button to select it.
+        pb = pygame.sprite.groupcollide(self.buttons, self.bullets, True, True)
+        if pb:
+            self.stats.game_active = 1
 
     def _damage(self, alien, damage):
         '''Deal damage to a hit alien.'''
@@ -210,6 +212,8 @@ class Harvey:
             alien.blitme()
         for speck in self.specks.sprites():
             speck.blitme()
+        if not self.stats.game_active:
+            self.play_button.blitme()
         pygame.display.flip()
         self.clock.tick(60)
 
