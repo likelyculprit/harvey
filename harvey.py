@@ -34,8 +34,9 @@ class Harvey:
         self.specks = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self.buttons = pygame.sprite.Group()
-        self.play_button = Button(self, 'assets/play_button.png')
+        self.play_button = Button(self, 'assets/panel.png', 'PLAY')
         self.buttons.add(self.play_button)
+        print(pygame.font.get_fonts())
 
     def run_game(self):
         '''Start the main loop for the game.'''
@@ -137,13 +138,17 @@ class Harvey:
         if self.settings.specks_left <= 0 and not self.specks:
             print("Aliens have taken all energy. We're doomed")
 
+    def _get_rand_velo(self):
+        '''Randomize velocity.'''
+        return (randint(-1, 1), randint(-1, 1))
+
     def _add_alien(self):
         '''Add aliens to the screen.'''
         alien_rand_gen = randint(0, 1000)
         if (alien_rand_gen < self.settings.alien_chance and
                 self.settings.aliens_left > 0):
             # Randomized velocity vector.
-            alien = Alien(self, self.settings.get_rand_velo())
+            alien = Alien(self, self._get_rand_velo())
             self.aliens.add(alien)
             self.settings.aliens_left -= 1
             print("Aliens remaining:", self.settings.aliens_left)
@@ -191,10 +196,12 @@ class Harvey:
         for alien in hits.values():
             self._damage(alien[0], self.settings.bullet_damage)
 
-        # Check for shootiing a button to select it.
+        # Check for shooting a button to select it.
         pb = pygame.sprite.groupcollide(self.buttons, self.bullets, True, True)
         if pb:
+            self.start_level()
             self.stats.game_active = 1
+            pygame.mouse.set_visible(False)
 
     def _damage(self, alien, damage):
         '''Deal damage to a hit alien.'''

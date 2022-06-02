@@ -4,45 +4,46 @@ from random import randint
 class Settings:
     '''A class to store all game settings.'''
 
-    # Screen settings.
-    screen_width = 800
-    screen_height = 800
-    bg_color = (20, 10, 70)
+    def __init__(self):
+        '''Init static settings.'''
+        # Screen settings.
+        self.screen_width = 800
+        self.screen_height = 800
+        self.bg_color = (20, 10, 70)
 
-    # Ship settings.
-    ship_speed = 5
+        # Bullet settings.
+        self.bullet_width = 8
+        self.bullet_height = 8
 
-    # Bullet settings.
-    bullet_speed = 6
-    bullet_width = 8
-    bullet_height = 8
-    bullet_damage = 1
-    bullets_allowed = 3
+        self.init_dynamic_settings()
 
-    # Speck settings.
-    speck_chance = 3
-    specks_left = randint(15, 25)
+    def init_dynamic_settings(self):
+        '''Init settings that can change during the game.'''
+        self.ship_speed = 5
 
-    # Alien settings.
-    # chance out of 1000 that an alien will appear each tick.
-    alien_chance = 5
-    aliens_left = randint(40, 50)
-    alien_hp = 1
+        self.bullet_speed = 6
+        self.bullet_damage = 1
+        self.bullets_allowed = 3
 
-    def get_rand_velo(self):
-        '''Randomaize velocity.'''
-        return (randint(-1, 1), randint(-1, 1))
+        self.speck_chance = 3  # chance per 1000 to appear each tick.
+        self.specks_left = randint(15, 25)
+
+        self.alien_chance = 5  # chance per 1000 to appear each tick.
+        self.aliens_left = randint(40, 50)
+        self.alien_hp = 1
 
 
 ###################### TODO ################################
 # bug number of bullets
 
 # levels
-# obstacles
 # stars background new each level
+# obstacles
 # animate aliens
 # animate hero - propulsion, shootshake
 # borders
 # abilities new each level
 # temp pickups
 # different aliens
+
+# netherium pentanium dilithium quantium thaumite
