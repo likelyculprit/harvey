@@ -33,4 +33,4 @@ class Button(Sprite):
         '''Draw blank button then draw button image.'''
         # self.screen.fill((214, 221, 231), self.rect)
         self.screen.blit(self.image, self.rect)
-        self.screen.blit(self.msg_image, self.rect)
+        self.screen.blit(self.msg_image, self.msg_image_rect)
