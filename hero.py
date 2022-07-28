@@ -11,7 +11,7 @@ class Hero:
         self.screen_rect = harvey.screen.get_rect()
 
         # Load the ship image and get its rect.
-        self.orig_image = pygame.image.load('assets/hero.bmp')
+        self.orig_image = pygame.image.load('assets/hero.png')
         self.image = self.orig_image
         self.rect = self.image.get_rect()
 
@@ -24,6 +24,8 @@ class Hero:
         # Store a decimal value for the ship's horizontal position.
         self.x = float(self.rect.x)
         self.y = float(self.rect.y)
+        self.position = (self.x, self.y)
+        self.radius = self.image.get_width() / 2
 
         # Movement and position flags.
         self.on_bottom = True
@@ -33,19 +35,55 @@ class Hero:
 
         self.moving_right = False
         self.moving_left = False
-        self.moving_down = False
-        self.moving_up = False
 
         self.jumping = False
+        self.stunned = False
+
+        self.clock = pygame.time.Clock()
+        self.timer = 3000
+        self.dt = 0  # Delta time since last tick.
+
+    def go_left(self):
+        if self.on_bottom and self.rect.left > self.screen_rect.left:
+            self.x -= self.settings.ship_speed
+        elif self.on_top and self.rect.right < self.screen_rect.right:
+            self.x += self.settings.ship_speed
+        elif self.on_left and self.rect.top > self.screen_rect.top:
+            self.y -= self.settings.ship_speed
+        elif self.on_right and self.rect.bottom < self.screen_rect.bottom:
+            self.y += self.settings.ship_speed
+
+    def go_right(self):
+        if self.on_bottom and self.rect.right < self.screen_rect.right:
+            self.x += self.settings.ship_speed
+        elif self.on_top and self.rect.left > self.screen_rect.left:
+            self.x -= self.settings.ship_speed
+        elif self.on_left and self.rect.bottom < self.screen_rect.bottom:
+            self.y += self.settings.ship_speed
+        elif self.on_right and self.rect.top > self.screen_rect.top:
+            self.y -= self.settings.ship_speed
+
+    def jump_up(self):
+        self.y -= self.settings.ship_speed
+
+    def jump_down(self):
+        self.y += self.settings.ship_speed
+
+    def jump_left(self):
+        self.x -= self.settings.ship_speed
+
+    def jump_right(self):
+        self.x += self.settings.ship_speed
+
+    def check_stun(self, game_clock):
+        self.timer -= game_clock
+        if self.timer <= 0:
+            self.stunned = False
 
     def update(self):
         '''Update ship position based on movement flag.'''
         pygame.draw.line(self.screen, (255, 255, 255), (60, 80), (130, 100))
-        if self.jumping:
-            # self.moving_right = False
-            # self.moving_left = False
-            # self.moving_down = False
-            # self.moving_up = False
+        if self.jumping and not self.stunned:
 
             # Jump from bottom.
             if self.on_bottom and (
@@ -56,8 +94,9 @@ class Hero:
                                       self.rect.midleft[0])
                                      )
                     self.image = pygame.transform.rotate(self.orig_image, -45)
-                    self.x -= self.settings.ship_speed
-                    self.y -= self.settings.ship_speed
+                    self.jump_up()
+                    self.jump_left()
+
                 elif self.rect.left <= self.screen_rect.left:
                     self.image = pygame.transform.rotate(self.orig_image, -90)
                     self.on_bottom = False
@@ -72,8 +111,9 @@ class Hero:
                         (sum(self.rect.midright) -
                          self.settings.screen_height))
                     self.image = pygame.transform.rotate(self.orig_image, 45)
-                    self.x += self.settings.ship_speed
-                    self.y -= self.settings.ship_speed
+                    self.jump_up()
+                    self.jump_right()
+
                 elif self.rect.right >= self.screen_rect.right:
                     self.image = pygame.transform.rotate(self.orig_image, 90)
                     self.on_bottom = False
@@ -85,8 +125,8 @@ class Hero:
                 if self.rect.left > self.screen_rect.left:
                     self.line_end = (0, sum(self.rect.midleft))
                     self.image = pygame.transform.rotate(self.orig_image, -135)
-                    self.x -= self.settings.ship_speed
-                    self.y += self.settings.ship_speed
+                    self.jump_down()
+                    self.jump_left()
                 elif self.rect.left <= self.screen_rect.left:
                     self.line_start = self.rect.midright
                     self.image = pygame.transform.rotate(self.orig_image, -90)
@@ -101,8 +141,8 @@ class Hero:
                                       (self.rect.midright[0] -
                                        self.rect.midright[1])))
                     self.image = pygame.transform.rotate(self.orig_image, -45)
-                    self.x += self.settings.ship_speed
-                    self.y += self.settings.ship_speed
+                    self.jump_down()
+                    self.jump_right()
                 elif self.rect.right >= self.screen_rect.right:
                     self.image = pygame.transform.rotate(self.orig_image, 90)
                     self.on_top = False
@@ -114,8 +154,8 @@ class Hero:
                 if self.rect.top > self.screen_rect.top:
                     self.line_end = (sum(self.rect.midleft), 0)
                     self.image = pygame.transform.rotate(self.orig_image, -135)
-                    self.x += self.settings.ship_speed
-                    self.y -= self.settings.ship_speed
+                    self.jump_right()
+                    self.jump_up()
                 elif self.rect.top <= self.screen_rect.top:
                     self.image = pygame.transform.rotate(self.orig_image, 180)
                     self.on_left = False
@@ -129,8 +169,8 @@ class Hero:
                                       self.rect.midbottom[0]),
                                      self.settings.screen_height)
                     self.image = pygame.transform.rotate(self.orig_image, -45)
-                    self.x += self.settings.ship_speed
-                    self.y += self.settings.ship_speed
+                    self.jump_right()
+                    self.jump_down()
                 elif self.rect.bottom >= self.screen_rect.bottom:
                     self.image = self.orig_image
                     self.on_left = False
@@ -143,8 +183,8 @@ class Hero:
                     self.line_end = (self.rect.midtop[0] - self.rect.midtop[1],
                                      0)
                     self.image = pygame.transform.rotate(self.orig_image, 135)
-                    self.x -= self.settings.ship_speed
-                    self.y -= self.settings.ship_speed
+                    self.jump_left()
+                    self.jump_up()
                 elif self.rect.top <= self.screen_rect.top:
                     self.image = pygame.transform.rotate(self.orig_image, 180)
                     self.on_right = False
@@ -157,29 +197,19 @@ class Hero:
                                       self.settings.screen_height),
                                      self.settings.screen_height)
                     self.image = pygame.transform.rotate(self.orig_image, 45)
-                    self.x -= self.settings.ship_speed
-                    self.y += self.settings.ship_speed
+                    self.jump_left()
+                    self.jump_down()
                 elif self.rect.bottom >= self.screen_rect.bottom:
                     self.image = self.orig_image
                     self.on_right = False
                     self.on_bottom = True
                     self.jumping = False
 
-        # Horizontal movement.
-        if self.moving_right and self.rect.right < self.screen_rect.right:
-            if (self.on_top or self.on_bottom) and not self.jumping:
-                self.x += self.settings.ship_speed
-        if self.moving_left and self.rect.left > self.screen_rect.left:
-            if (self.on_top or self.on_bottom) and not self.jumping:
-                self.x -= self.settings.ship_speed
-
-        # Vertical movement.
-        if self.moving_down and self.rect.bottom < self.screen_rect.bottom:
-            if (self.on_left or self.on_right) and not self.jumping:
-                self.y += self.settings.ship_speed
-        if self.moving_up and self.rect.top > self.screen_rect.top:
-            if (self.on_left or self.on_right) and not self.jumping:
-                self.y -= self.settings.ship_speed
+        # Surface movement.
+        if self.moving_right and not self.jumping and not self.stunned:
+            self.go_right()
+        if self.moving_left and not self.jumping and not self.stunned:
+            self.go_left()
 
         # Update rect object from self.x
         self.rect.x = self.x
@@ -187,7 +217,7 @@ class Hero:
 
     def blitme(self):
         '''Draw the ship at its current location.'''
-        if self.jumping:
+        if self.jumping and not self.stunned:
             pygame.draw.line(
                 self.screen,
                 (255, 255, 255),

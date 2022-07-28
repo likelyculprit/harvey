@@ -1,8 +1,11 @@
 import sys
 import pygame
+from random import randint
 
 from settings import Settings
 from hero import Hero
+from bullet import Bullet
+from alien import Alien
 
 
 class Harvey:
@@ -11,7 +14,9 @@ class Harvey:
     def __init__(self):
         '''Init the game and create resources.'''
         pygame.init()
+        self.clock = pygame.time.Clock()
         self.settings = Settings()
+        self.running = True
         self.pad = 0
         if pygame.joystick.get_count():
             self.pad = pygame.joystick.Joystick(0)
@@ -22,12 +27,16 @@ class Harvey:
         self.rect = self.screen.get_rect()
         pygame.display.set_caption("Harvey")
         self.hero = Hero(self)
+        self.bullets = pygame.sprite.Group()
+        self.aliens = pygame.sprite.Group()
 
     def run_game(self):
         '''Start the main loop for the game.'''
-        while True:
+        while self.running:
             self._check_events()
             self.hero.update()
+            self._update_bullets()
+            self._update_aliens()
             self._update_screen()
 
     def _check_events(self):
@@ -53,21 +62,12 @@ class Harvey:
                     self.hero.moving_left = False
                     self.hero.moving_right = False
 
-                # Left stick or d-pad vertical axis.
-                if (self.pad.get_axis(1) < -0.07 or
-                        self.pad.get_hat(0)[1] == 1):
-                    self.hero.moving_up = True
-                    self.hero.moving_down = False
-                elif (self.pad.get_axis(1) > 0.07 or
-                        self.pad.get_hat(0)[1] == -1):
-                    self.hero.moving_down = True
-                    self.hero.moving_up = False
-                elif -0.07 <= self.pad.get_axis(1) <= 0.07:
-                    self.hero.moving_up = False
-                    self.hero.moving_down = False
-
                 if self.pad.get_button(2):
                     self.hero.jumping = True
+
+                if self.pad.get_button(0) or self.pad.get_axis(5) > 0:
+                    if not self.hero.jumping:
+                        self._fire_bullet()
 
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)
@@ -80,14 +80,14 @@ class Harvey:
             self.hero.moving_right = True
         elif event.key == pygame.K_LEFT:
             self.hero.moving_left = True
-        elif event.key == pygame.K_DOWN:
-            self.hero.moving_down = True
-        elif event.key == pygame.K_UP:
-            self.hero.moving_up = True
 
         elif event.key == pygame.K_b:
             if self.hero.jumping == False:
                 self.hero.jumping = True
+
+        elif event.key == pygame.K_SPACE:
+            if not self.hero.jumping:
+                self._fire_bullet()
 
         elif event.key == pygame.K_q:
             sys.exit()
@@ -103,11 +103,76 @@ class Harvey:
         elif event.key == pygame.K_UP:
             self.hero.moving_up = False
 
+    def _add_alien(self):
+        '''Add aliens to the screen.'''
+        # Randomized velocity vector.
+        alien = Alien(self, self.settings.get_rand_velo())
+        self.aliens.add(alien)
+
+    def _generate_alien(self):
+        '''Determine if a new alien should appear.'''
+        alien_rand_gen = randint(0, 1000)
+        if alien_rand_gen < self.settings.alien_chance:
+            self._add_alien()
+
+    def _update_aliens(self):
+        '''Update position of aliens.'''
+        self._generate_alien()
+        self.aliens.update()
+
+        # Check for alien-hero collisions.
+        alien_coll = pygame.sprite.spritecollide(self.hero, self.aliens, True)
+        if alien_coll:
+            self.hero.stunned = True
+            self.hero.timer = 3000
+        self.hero.check_stun(self.clock.get_time())
+
+    def _fire_bullet(self):
+        '''Create a new bullet and add it to the bullets group.'''
+        if (len(self.bullets) < self.settings.bullets_allowed and
+                not self.hero.stunned):
+            new_bullet = Bullet(self)
+            self.bullets.add(new_bullet)
+
+    def _update_bullets(self):
+        '''Update position of bullets and delete old bullets.'''
+        self.bullets.update()
+
+        # for alien in self.aliens.copy():
+        #     hit_bullet = pygame.sprite.spritecollide(
+        #         alien, self.bullets, True)
+
+        # Delete bullets that have left the screen.
+        for bullet in self.bullets.copy():
+            if (bullet.rect.bottom < 0 or
+                    bullet.rect.top > self.settings.screen_height or
+                    bullet.rect.left > self.settings.screen_width or
+                    bullet.rect.right < 0):
+                self.bullets.remove(bullet)
+            # for hit_alien in pygame.sprite.spritecollide(
+            #         bullet, self.aliens, False):
+            #     self._damage(hit_alien, self.settings.bullet_damage)
+        # Check for bullet-alien collisions and remove both on contact.
+        hits = pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, False)
+        for alien in hits.values():
+            self._damage(alien[0], self.settings.bullet_damage)
+
+    def _damage(self, alien, damage):
+        alien.hp -= damage
+        if alien.hp <= 0:
+            self.aliens.remove(alien)
+
     def _update_screen(self):
         '''Update images on screen and flip to new screen.'''
         self.screen.fill(self.settings.bg_color)
         self.hero.blitme()
+        for bullet in self.bullets.sprites():
+            bullet.blitme()
+        for alien in self.aliens.sprites():
+            alien.blitme()
         pygame.display.flip()
+        self.clock.tick(60)
 
 
 if __name__ == '__main__':

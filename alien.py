@@ -37,6 +37,16 @@ class Alien(Sprite):
         self.rect.y = int(self.blit_position.y)
         self.screen.blit(self.image, self.blit_position)
 
+    def blitme(self):
+        '''Draw alien at its current location.'''
+        self.blit_position = self.position - Vector2(self.radius)
+        self.screen.blit(self.image, self.blit_position)
+
+    def collides_with(self, other_obj):
+        '''Determine if alien contacts anything.'''
+        self.distance = self.position.distance_to(other_obj.position)
+        return self.distance < self.radius + other_obj.radius
+
     def check_edges(self):
         '''Determine if alien hits screen edges.'''
         # Top or bottom edges.
@@ -50,8 +60,3 @@ class Alien(Sprite):
                 (self.position.x + self.radius) >=
                 self.settings.screen_width):
             self.velocity.x *= -1
-
-    def blitme(self):
-        '''Draw alien at its current location.'''
-        self.blit_position = self.position - Vector2(self.radius)
-        self.screen.blit(self.image, self.blit_position)
